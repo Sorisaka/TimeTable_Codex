@@ -1,0 +1,12 @@
+{
+  "name": "timetable-codex",
+  "version": "0.1.0",
+  "main": "src/ui/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "electron": "^29.1.0"
+  }
+}
