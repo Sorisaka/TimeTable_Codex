@@ -1,0 +1,4 @@
+Band,Duration,d1_h10,d1_h11,d1_h12
+BandA,10,yes,no,yes
+BandB,15,yes,yes,yes
+BandC,15,no,no,no
