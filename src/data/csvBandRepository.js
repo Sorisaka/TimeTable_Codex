@@ -3,15 +3,21 @@ const Band = require('../domain/Band');
 
 function parseCsv(content) {
   const lines = content.trim().split(/\r?\n/);
-  const headers = lines.shift().split(',');
-  return lines.map((line) => {
-    const values = line.split(',');
-    const row = {};
-    headers.forEach((h, i) => {
-      row[h] = values[i];
+  const headers = lines
+    .shift()
+    .split(',')
+    .map((h) => h.replace(/^\uFEFF/, '').trim());
+  return lines
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const values = line.split(',');
+      const row = {};
+      headers.forEach((h, i) => {
+        row[h] = (values[i] || '').trim();
+      });
+      return row;
     });
-    return row;
-  });
 }
 
 function parseAvailability(row) {
@@ -32,12 +38,16 @@ function parseAvailability(row) {
 function loadBandsFromCsv(filePath) {
   const content = fs.readFileSync(filePath, 'utf-8');
   const records = parseCsv(content);
-  return records.map((row) => {
-    const name = row.Band || row.band || row.name;
-    const duration = parseInt(row.Duration || row.duration, 10);
-    const availability = parseAvailability(row);
-    return new Band(name, duration, availability);
-  });
+  return records
+    .map((row) => {
+      const values = Object.values(row);
+      const name = (row.Band || row.band || row.name || values[0] || '').trim();
+      const durationStr = row.Duration || row.duration || values[1] || '0';
+      const duration = parseInt(durationStr, 10);
+      const availability = parseAvailability(row);
+      return new Band(name, isNaN(duration) ? 0 : duration, availability);
+    })
+    .filter((b) => b.name);
 }
 
 module.exports = { loadBandsFromCsv };
